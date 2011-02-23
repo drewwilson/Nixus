@@ -56,7 +56,7 @@ Nixus.prototype.run = function run(cb) {
       connect.router(rootHandler),
 
       // merge static files into /
-      connect.staticProvider({root: __dirname + '/../public', maxAge: 1000}),
+      connect.staticProvider({root: __dirname + '/../../public', maxAge: 1000}),
 
       // handle /api/
       connect.router(apiHandler),
