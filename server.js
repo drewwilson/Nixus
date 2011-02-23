@@ -5,7 +5,7 @@
  * @author Amir Malik
  */
 
-require.paths.unshift('../vendor/connect/lib');
+require.paths.unshift('../../vendor/connect/lib');
 
 var connect     = require('connect'),
     MemoryStore = require('connect/middleware/session/memory');
@@ -15,7 +15,7 @@ var common    = require('./common'),
 
 function rootHandler(app) {
   app.get('/', function(req, res, next) {
-    common.sendFile(res, __dirname + '/../public/index.html');
+    common.sendFile(res, __dirname + '/../../public/index.html');
   });
 }
 

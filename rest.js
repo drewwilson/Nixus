@@ -5,7 +5,7 @@
  * @author Amir Malik
  */
 
-var connect = require('../vendor/connect');
+var connect = require('../../vendor/connect');
 
 function REST() {
 }

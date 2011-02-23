@@ -5,7 +5,7 @@
  * @author Amir Malik
  */
 
-var mongodb = require('../vendor/node-mongodb-native/lib/mongodb');
+var mongodb = require('../../vendor/node-mongodb-native/lib/mongodb');
 var Db = mongodb.Db,
     Connection = mongodb.Connection,
     Server = mongodb.Server,
