@@ -44,7 +44,6 @@ DataStore.prototype.connect = function connect(cb) {
   });
 
   this.db.open(function(err, db) {
-    console.log('DataStore connected to ' + self.name);
     cb();
   });
 };

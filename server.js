@@ -5,7 +5,7 @@
  * @author Amir Malik
  */
 
-require.paths.unshift('../../vendor/connect/lib');
+require.paths.unshift('../vendor/connect/lib');
 
 var connect     = require('connect'),
     MemoryStore = require('connect/middleware/session/memory');
@@ -26,35 +26,47 @@ function apiHandler(app) {
   });
 }
 
-datastore.init('localhost', 27017, 'dialoggs');
-datastore.connect(function() {
-  var server = connect.createServer(
-    // log HTTP requests
-    connect.logger(),
+function Nixus(config) {
+  this.config = config;
+}
 
-    // decode application/x-www-form-urlencoded and application/json requests
-    connect.bodyDecoder(),
+Nixus.prototype.run = function run(cb) {
+  var port = this.config.port || 8080;
+  var dsconf = this.config.datastore;
 
-    // populate req.cookies
-    connect.cookieDecoder(),
+  datastore.init(dsconf.host, dsconf.port, dsconf.name);
+  datastore.connect(function() {
+    var server = connect.createServer(
+      // log HTTP requests
+      connect.logger(),
 
-    // seesion cookies
-    connect.session({store: new MemoryStore({reapInterval: 5 * 60 * 1000}), secret: "SuperSecretSessionSeed"}),
+      // decode application/x-www-form-urlencoded and application/json requests
+      connect.bodyDecoder(),
 
-    // contitional GET requests
-    connect.conditionalGet(),
+      // populate req.cookies
+      connect.cookieDecoder(),
 
-    // handle /
-    connect.router(rootHandler),
+      // seesion cookies
+      connect.session({store: new MemoryStore({reapInterval: 5 * 60 * 1000}), secret: "SuperSecretSessionSeed"}),
 
-    // merge static files into /
-    connect.staticProvider({root: __dirname + '/../public', maxAge: 1000}),
+      // contitional GET requests
+      connect.conditionalGet(),
 
-    // handle /api/
-    connect.router(apiHandler),
+      // handle /
+      connect.router(rootHandler),
 
-    // errors
-    connect.errorHandler({showStack: true})
-  );
-  server.listen(8080);
-});
+      // merge static files into /
+      connect.staticProvider({root: __dirname + '/../public', maxAge: 1000}),
+
+      // handle /api/
+      connect.router(apiHandler),
+
+      // errors
+      connect.errorHandler({showStack: true})
+    );
+    server.listen(port);
+    cb();
+  });
+};
+
+exports.Nixus = Nixus
