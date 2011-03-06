@@ -22,3 +22,6 @@ console.log("encrypted: " + JSON.stringify(doc2, null, 2));
 var doc3 = SaltService.decrypt('c1', doc2);
 
 console.log("decrypted: " + JSON.stringify(doc3, null, 2));
+
+console.log("c1/foo is salted? " + SaltService.isSalted('c1', 'foo'));
+console.log("c2/foo is salted? " + SaltService.isSalted('c2', 'foo'));

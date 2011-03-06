@@ -52,4 +52,17 @@ SaltService.prototype.decrypt = function(collection, doc) {
   return this._docrypt(collection, doc, false);
 };
 
+SaltService.prototype.isSalted = function(collection, field) {
+  var fields = this.fields[collection];
+
+  if(fields) {
+    for(var i = 0; i < fields.length; i++) {
+      if(fields[i] == field)
+        return true;
+    }
+  }
+
+  return false;
+};
+
 exports.SaltService = global['SaltService'] || (global['SaltService'] = new SaltService());
