@@ -28,6 +28,9 @@ SaltService.prototype._docrypt = function(collection, doc, encrypt) {
     keys.forEach(function(key) {
       var c;
 
+      if(!(key in doc) || !doc[key])
+        return;
+
       if(encrypt) {
         c = crypto.createCipher(algo, key);
       } else {
