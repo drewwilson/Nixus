@@ -195,7 +195,7 @@ Nixus.prototype.run = function run(cb) {
   var session_secret = this.config.session.secret;
 
   DataStore.init(dsconf.host, dsconf.port, dsconf.name);
-  security.init(this.config.salting);
+  security.init(this.config.security);
 
   DataStore.connect(function() {
     var server = connect.createServer(

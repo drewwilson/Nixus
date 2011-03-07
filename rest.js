@@ -37,14 +37,15 @@ REST.prototype.get = function(req, res, next) {
     req.nixus.data = [];
 
     if(id) {
-      if(results.length == 0)
+      if(results.length == 0) {
         req.nixus.data = null;
-      else
-        req.nixus.data = req.nixus.process(results[0], req, res);
+      } else {
+        req.nixus.data = req.nixus.process(SaltService.trimHidden(collection, results[0]), req, res);
+      }
     } else {
       req.nixus.data = [];
       for(var i = 0; i < results.length; i++) {
-        req.nixus.data.push(req.nixus.process(results[i], req, res));
+        req.nixus.data.push(req.nixus.process(SaltService.trimHidden(collection, results[i]), req, res));
       }
     }
     next();
@@ -55,7 +56,7 @@ REST.prototype.put = function(req, res, next) {
   var collection = req.params.collection,
               id = req.params.id;
 
-  var doc = req.body;
+  var doc = SaltService.trimReadOnly(collection, req.body);
   var where = {
     _id: id,
   };
@@ -75,7 +76,7 @@ REST.prototype.post = function(req, res, next) {
               id = req.params.id;
 
   var doc = req.body;
-  doc = req.nixus.process(doc, req, res);
+  doc = req.nixus.process(SaltService.trimReadOnly(collection, doc), req, res);
 
   DataStore.insert(collection, doc, function(err, doc) {
     if(err)
@@ -99,6 +100,8 @@ REST.prototype.del = function(req, res, next) {
   DataStore.remove(collection, where, function(err) {
     if(err)
       throw err;
+
+    console.log("REST.delete succeeded for _id: " + id);
 
     next();
   });
