@@ -40,7 +40,7 @@ REST.prototype.get = function(req, res, next) {
       if(results.length == 0)
         req.nixus.data = null;
       else
-        req.nixus.data = results[0];
+        req.nixus.data = req.nixus.process(results[0], req, res);
     } else {
       req.nixus.data = [];
       for(var i = 0; i < results.length; i++) {
