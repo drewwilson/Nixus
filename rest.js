@@ -84,7 +84,7 @@ REST.prototype.post = function(req, res, next) {
 
     console.log("REST.post inserted doc with _id: " + doc['_id']);
 
-    req.nixus.data = doc;
+    req.nixus.data = SaltService.trimHidden(collection, doc);
     next();
   });
 };
