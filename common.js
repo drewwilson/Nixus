@@ -27,4 +27,30 @@ function sendFile(res, file, contentType) {
   });
 }
 
+var SHORTEN_DICTIONARY = 'abcdefghijklmnopqrstuvwxyz0123456789';
+
+function shortenId(n) {
+  if(typeof n === 'string')
+    n = parseInt(n, 10);
+
+  var result = '';
+  for(var i = 0; n > 0; n = Math.floor(n / SHORTEN_DICTIONARY.length)) {
+    result = SHORTEN_DICTIONARY[n % SHORTEN_DICTIONARY.length] + result;
+  }
+
+  return result;
+}
+
+function unshortenId(s) {
+  var result = 0;
+
+  for(var i = 0; i < s.length; i++) {
+    result += SHORTEN_DICTIONARY.indexOf(s[i]) * Math.pow(SHORTEN_DICTIONARY.length, s.length - i - 1);
+  }
+
+  return result;
+}
+
 exports.sendFile = sendFile;
+exports.shortenId = shortenId;
+epxorts.unshortenId = unshortenId;
