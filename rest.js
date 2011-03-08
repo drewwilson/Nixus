@@ -9,7 +9,8 @@ var url = require('url');
 
 var connect = require('../../vendor/connect');
 
-var DataStore = require('./datastore').DataStore;
+var DataStore = require('./datastore').DataStore,
+       common = require('./common');
 
 function REST() {
 }
@@ -23,7 +24,7 @@ REST.prototype.get = function(req, res, next) {
   var count = 0;
 
   if(id) {
-    where['_id'] = id;
+    where['id'] = id;
   }
 
   console.log(JSON.stringify(where));
@@ -58,7 +59,7 @@ REST.prototype.put = function(req, res, next) {
 
   var doc = SaltService.trimReadOnly(collection, req.body);
   var where = {
-    _id: id,
+    id: id,
   };
 
   DataStore.update(collection, where, doc, function(err) {
@@ -82,7 +83,7 @@ REST.prototype.post = function(req, res, next) {
     if(err)
       throw err;
 
-    console.log("REST.post inserted doc with _id: " + doc['_id']);
+    console.log("REST.post inserted doc with id: " + doc['id']);
 
     req.nixus.data = SaltService.trimHidden(collection, doc);
     next();
@@ -94,14 +95,14 @@ REST.prototype.del = function(req, res, next) {
               id = req.params.id;
 
   var where = {
-    _id: id,
+    id: id,
   };
 
   DataStore.remove(collection, where, function(err) {
     if(err)
       throw err;
 
-    console.log("REST.delete succeeded for _id: " + id);
+    console.log("REST.delete succeeded for id: " + id);
 
     next();
   });

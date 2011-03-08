@@ -12,7 +12,8 @@ var Db = mongodb.Db,
     BSON = mongodb.BSONPure;
     //BSON = mongodb.BSONNative;
 
-var SaltService = require('./security').SaltService;
+var SaltService = require('./security').SaltService,
+         common = require('./common');
 
 function DataStore() {
   this.connection = null;
@@ -68,7 +69,9 @@ DataStore.prototype.query = function query(collection, where, cb) {
 
     where = SaltService.encrypt(collection, where);
 
-    if('_id' in where)
+    if('id' in where)
+      where['id'] = common.unshortenId(where['id']);
+    else if('_id' in where)
       where['_id'] = new BSON.ObjectID(where['_id']);
 
     c.find(where, function(err, cursor) {
@@ -86,6 +89,7 @@ DataStore.prototype.query = function query(collection, where, cb) {
         }
 
         doc = SaltService.decrypt(collection, doc);
+        doc['id'] = common.shortenId(doc['id']);
 
         cb(null, doc);
       });
@@ -103,10 +107,12 @@ DataStore.prototype.queryAll = function queryAll(collection, where, cb) {
 
     where = SaltService.encrypt(collection, where);
 
-    if('_id' in where)
+    if('id' in where)
+      where['id'] = common.unshortenId(where['id']);
+    else if('_id' in where)
       where['_id'] = new BSON.ObjectID(where['_id']);
 
-    console.log("where claused: " + JSON.stringify(where));
+    console.log("where clause: " + JSON.stringify(where));
 
     c.find(where, function(err, cursor) {
       if(err) {
@@ -123,6 +129,7 @@ DataStore.prototype.queryAll = function queryAll(collection, where, cb) {
         }
 
         for(var i = 0; i < results.length; i++) {
+          results[i]['id'] = common.shortenId(results[i]['id']);
           results[i] = SaltService.decrypt(collection, results[i]);
         }
 
@@ -134,6 +141,8 @@ DataStore.prototype.queryAll = function queryAll(collection, where, cb) {
 };
 
 DataStore.prototype.insert = function insert(collection, doc, cb) {
+  var self = this;
+
   this.db.collection(collection, function(err, c) {
     if(err) {
       console.log('error opening collection "' + collection + '": ' + err);
@@ -142,29 +151,83 @@ DataStore.prototype.insert = function insert(collection, doc, cb) {
 
     doc = SaltService.encrypt(collection, doc);
 
-    c.insert(doc, function(docs) {
-      cb(null, doc);
+    self.nextId(collection, function(err, id) {
+      if(err) {
+        console.log('failed to increment id. error: ' + err);
+        return cb(err);
+      }
+
+      doc['id'] = id;
+
+      c.insert(doc, function(docs) {
+        doc['id'] = common.shortenId(doc['id']);
+        cb(null, doc);
+      });
     });
   });
 };
 
-DataStore.prototype.update = function update(collection, where, update, cb) {
+DataStore.prototype._update = function _update(collection, where, update, cb) {
   this.db.collection(collection, function(err, c) {
     if(err) {
       console.log('error opening collection "' + collection + '": ' + err);
       return cb(null);
     }
 
-    where = SaltService.encrypt(collection, where);
-    update = SaltService.encrypt(collection, update);
-
-    c.update(where, {'$set': update}, function(err, result) {
-      cb(err);
+    c.update(where, update, function(err, result) {
+      cb(err, result);
     });
   });
 };
 
+DataStore.prototype.update = function update(collection, where, update, cb) {
+  if('id' in where)
+    where['id'] = common.unshortenId(where['id']);
+  else if('_id' in where)
+    where['_id'] = new BSON.ObjectID(where['_id']);
+
+  where = SaltService.encrypt(collection, where);
+  update = SaltService.encrypt(collection, update);
+
+  this._update(collection, where, {'$set': update}, cb);
+};
+
+DataStore.prototype.increment = function increment(collection, where, field, cb) {
+  if('id' in where)
+    where['id'] = common.unshortenId(where['id']);
+  else if('_id' in where)
+    where['_id'] = new BSON.ObjectID(where['_id']);
+
+  where = SaltService.encrypt(collection, where);
+
+  var update = {};
+  update['$inc'] = {};
+  update['$inc'][field] = 1;
+
+  this._update(collection, where, update, cb);
+};
+
+DataStore.prototype.decrement = function decrement(collection, where, field, cb) {
+  if('id' in where)
+    where['id'] = common.unshortenId(where['id']);
+  else if('_id' in where)
+    where['_id'] = new BSON.ObjectID(where['_id']);
+
+  where = SaltService.encrypt(collection, where);
+
+  var update = {};
+  update['$dec'] = {};
+  update['$dec'][field] = 1;
+
+  this._update(collection, where, update, cb);
+};
+
 DataStore.prototype.remove = function remove(collection, where, cb) {
+  if('id' in where)
+    where['id'] = common.unshortenId(where['id']);
+  else if('_id' in where)
+    where['_id'] = new BSON.ObjectID(where['_id']);
+
   this.db.collection(collection, function(err, c) {
     if(err) {
       console.log('error opening collection "' + collection + '": ' + err);
@@ -178,6 +241,23 @@ DataStore.prototype.remove = function remove(collection, where, cb) {
       }
 
       cb();
+    });
+  });
+};
+
+DataStore.prototype.nextId = function nextId(collection, cb) {
+  this.db.collection(collection, function(err, c) {
+    if(err) {
+      console.log('error opening collection "' + collection + '": ' + err);
+      return cb(err);
+    }
+
+    c.findAndModify({_id: 'nixus_id'}, [], {'$inc': {seq: 1}}, {new: true, upsert: true}, function(err, result) {
+      if(err)
+        cb(er);
+      else {
+        cb(null, result.seq);
+      }
     });
   });
 };
