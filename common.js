@@ -53,4 +53,4 @@ function unshortenId(s) {
 
 exports.sendFile = sendFile;
 exports.shortenId = shortenId;
-epxorts.unshortenId = unshortenId;
+exports.unshortenId = unshortenId;
