@@ -1,4 +1,4 @@
-var SaltService = require('../security').SaltService;
+var SaltService = require('../lib/security').SaltService;
 SaltService.init({
   algorithm: "aes192",
   key: {
