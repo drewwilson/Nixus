@@ -1,0 +1,25 @@
+{
+  "port": 8000,
+  "datastore": {
+    "host": "localhost",
+    "port": 27017,
+    "name": "nixus"
+  },
+  "session": {
+    "secret": "SuperSecretSessionSeed"
+  },
+  "security": {
+    "algorithm": "aes192",
+    "key": {
+      "string": "secret key for salting"
+    },
+    "salted": {
+    },
+    "readonly": {
+    },
+    "hidden": {
+    }
+  },
+  "collections": [
+  ]
+}

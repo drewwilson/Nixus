@@ -1,0 +1,6 @@
+[submodule "vendor/connect"]
+	path = vendor/connect
+	url = git://github.com/senchalabs/connect.git
+[submodule "vendor/node-mongodb-native"]
+	path = vendor/node-mongodb-native
+	url = git://github.com/christkv/node-mongodb-native.git
