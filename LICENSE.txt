@@ -1,3 +1,5 @@
+(The MIT License)
+
 Copyright (C) 2011 by Amir Malik & Drew Wilson
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
