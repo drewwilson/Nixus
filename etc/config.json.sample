@@ -8,6 +8,9 @@
   "session": {
     "secret": "SuperSecretSessionSeed"
   },
+  "acl": {
+    "whitelist_ip": []
+  },
   "security": {
     "algorithm": "aes192",
     "key": {
